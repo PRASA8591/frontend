@@ -1,16 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSettings } from '../context/SettingsContext';
 import { Lock, User, Loader2, ShieldCheck, Cpu, Database, Server } from 'lucide-react';
 import logo from '../assets/logo.png';
 
+// Memoized Background Blobs to avoid re-renders during input typing
+const BackgroundBlobs = React.memo(() => (
+  <>
+    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
+    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+  </>
+));
+BackgroundBlobs.displayName = 'BackgroundBlobs';
+
+// Memoized Header logo and brand to prevent image decoding/rendering cycles on typing
+const Header = React.memo(({ logo }) => (
+  <div className="p-10 text-center relative">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
+    
+    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-900 text-white shadow-xl mb-6 transform hover:rotate-6 transition-transform">
+       <img src={logo} className="w-12 h-12 object-contain" alt="Logo" loading="eager" />
+    </div>
+    
+    <h1 className="text-2xl font-black text-slate-900 tracking-tight">PrasaTek Inventory System</h1>
+    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] mt-2">Powered by PrasaTek System Solutions</p>
+  </div>
+));
+Header.displayName = 'Header';
+
+// Memoized Branding Footer
+const BrandingFooter = React.memo(() => (
+  <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+     <div className="flex gap-2">
+        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
+        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
+        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
+     </div>
+     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Secure v4.2.1</p>
+  </div>
+));
+BrandingFooter.displayName = 'BrandingFooter';
+
+// Memoized System Badges
+const SystemBadges = React.memo(() => (
+  <div className="mt-8 flex justify-center items-center gap-6 opacity-40 grayscale group hover:grayscale-0 hover:opacity-100 transition-all">
+     <div className="flex items-center gap-2 text-white">
+        <Database className="w-4 h-4" />
+        <span className="text-[10px] font-bold uppercase tracking-widest">Encrypted</span>
+     </div>
+     <div className="flex items-center gap-2 text-white">
+        <Server className="w-4 h-4" />
+        <span className="text-[10px] font-bold uppercase tracking-widest">System Login</span>
+     </div>
+     <div className="flex items-center gap-2 text-white">
+        <Cpu className="w-4 h-4" />
+        <span className="text-[10px] font-bold uppercase tracking-widest">Optimized</span>
+     </div>
+  </div>
+));
+SystemBadges.displayName = 'SystemBadges';
+
 const Login = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
-  const { settings } = useSettings();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,41 +74,33 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const onSubmit = async (e) => {
+  // Memoized submit handler using refs to avoid any re-renders while typing
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    const res = await login(formData.username, formData.password);
+    
+    const username = usernameRef.current?.value || '';
+    const password = passwordRef.current?.value || '';
+    
+    const res = await login(username.trim(), password);
     setIsLoading(false);
+    
     if (res.success) {
       navigate('/');
     } else {
       setError(res.error);
     }
-  };
+  }, [login, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 relative overflow-hidden px-4 font-sans">
-      
-      {/* Dynamic Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+      <BackgroundBlobs />
       
       <div className="w-full max-w-[440px] relative z-10">
         <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/40 overflow-hidden border border-white/20">
           
-          <div className="p-10 text-center relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
-            
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-900 text-white shadow-xl mb-6 transform hover:rotate-6 transition-transform">
-               <img src={logo} className="w-12 h-12 object-contain" alt="Logo" />
-            </div>
-            
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">PrasaTek Inventory System</h1>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] mt-2">Powered by PrasaTek System Solutions</p>
-          </div>
+          <Header logo={logo} />
 
           <div className="px-10 pb-10">
             {error && (
@@ -73,10 +120,10 @@ const Login = () => {
                   <input
                     type="text"
                     name="username"
+                    ref={usernameRef}
+                    autoComplete="username"
                     className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all placeholder:text-slate-300"
                     placeholder="Operator Username"
-                    value={formData.username}
-                    onChange={onChange}
                     required
                   />
                 </div>
@@ -91,10 +138,10 @@ const Login = () => {
                   <input
                     type="password"
                     name="password"
+                    ref={passwordRef}
+                    autoComplete="current-password"
                     className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all placeholder:text-slate-300"
                     placeholder="Enter Access Key"
-                    value={formData.password}
-                    onChange={onChange}
                     required
                   />
                 </div>
@@ -104,7 +151,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-slate-900 hover:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 active:scale-[0.98] group"
+                  className="w-full bg-slate-900 hover:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 active:scale-[0.98] group cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
@@ -122,31 +169,10 @@ const Login = () => {
             </form>
           </div>
 
-          <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-             <div className="flex gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-                <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-                <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-             </div>
-             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Secure v4.2.1</p>
-          </div>
+          <BrandingFooter />
         </div>
         
-        {/* Footer info */}
-        <div className="mt-8 flex justify-center items-center gap-6 opacity-40 grayscale group hover:grayscale-0 hover:opacity-100 transition-all">
-           <div className="flex items-center gap-2 text-white">
-              <Database className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Encrypted</span>
-           </div>
-           <div className="flex items-center gap-2 text-white">
-              <Server className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">System Login</span>
-           </div>
-           <div className="flex items-center gap-2 text-white">
-              <Cpu className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Optimized</span>
-           </div>
-        </div>
+        <SystemBadges />
       </div>
     </div>
   );
