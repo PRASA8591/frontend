@@ -13,11 +13,13 @@ export const API_URL = `${BACKEND_URL}/api`;
 axios.interceptors.request.use(
   (config) => {
     if (config.url) {
-      // Replace hardcoded localhost base URLs with the configured environment backend URL
+      // Replace hardcoded localhost or production base URLs with the configured environment backend URL
       if (config.url.includes('http://127.0.0.1:5000')) {
         config.url = config.url.replace('http://127.0.0.1:5000', BACKEND_URL);
       } else if (config.url.includes('http://localhost:5000')) {
         config.url = config.url.replace('http://localhost:5000', BACKEND_URL);
+      } else if (config.url.includes('https://invtory-backend.onrender.com')) {
+        config.url = config.url.replace('https://invtory-backend.onrender.com', BACKEND_URL);
       }
       // Sanitize potential double slashes in paths (e.g. domain.com//api -> domain.com/api)
       // leaving the protocol (http:// or https://) untouched

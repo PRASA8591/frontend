@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { API_URL } from '../config';
 
 const SettingsContext = createContext();
 
@@ -19,11 +20,11 @@ export const SettingsProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'https://invtory-backend.onrender.com/api/settings';
+  const SETTINGS_API_URL = `${API_URL}/settings`;
 
   const fetchPublicSettings = async () => {
     try {
-      const res = await axios.get(`${API_URL}/public`);
+      const res = await axios.get(`${SETTINGS_API_URL}/public`);
       setSettings(prev => ({
         ...prev,
         companyName: res.data.companyName || prev.companyName,
@@ -40,7 +41,7 @@ export const SettingsProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const res = await axios.get(API_URL, {
+      const res = await axios.get(SETTINGS_API_URL, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSettings(res.data);
@@ -65,7 +66,7 @@ export const SettingsProvider = ({ children }) => {
     if (!token) return { success: false, message: 'No authentication' };
 
     try {
-      const res = await axios.put(API_URL, updatedData, {
+      const res = await axios.put(SETTINGS_API_URL, updatedData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSettings(res.data); // Update local context state directly
@@ -87,7 +88,7 @@ export const SettingsProvider = ({ children }) => {
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, loading, updateSettings, fetchSettings, formatCurrency }}>
+    <SettingsContext.Provider value={{ settings, setSettings, loading, updateSettings, fetchSettings, formatCurrency }}>
       {children}
     </SettingsContext.Provider>
   );
