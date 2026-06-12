@@ -11,6 +11,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ItemsManagement from './pages/ItemsManagement';
 import StockManagement from './pages/StockManagement';
+import StockTransfers from './pages/StockTransfers';
+
 import POS from './pages/POS';
 import PriceManagement from './pages/PriceManagement';
 import UsersManagement from './pages/UsersManagement';
@@ -39,7 +41,9 @@ const getFirstAllowedPage = (user) => {
     { path: '/dashboard', accessKey: 'dashboard' },
     { path: '/items', accessKey: 'items' },
     { path: '/stock', accessKey: 'stock' },
+    { path: '/transfers', accessKey: 'stock' },
     { path: '/stock/direct', accessKey: 'direct_stock' },
+
     { path: '/pos', accessKey: 'pos' },
     { path: '/price', accessKey: 'price' },
     { path: '/crm', accessKey: 'crm' },
@@ -214,6 +218,34 @@ function App() {
                 </PrivateRoute>
               } 
             />
+
+            <Route 
+              path="/transfers" 
+              element={
+                <PrivateRoute accessKey="stock">
+                  <StockTransfers />
+                </PrivateRoute>
+              } 
+            />
+
+            <Route 
+              path="/transfers/request" 
+              element={
+                <PrivateRoute accessKey="stock">
+                  <StockTransfers />
+                </PrivateRoute>
+              } 
+            />
+
+            <Route 
+              path="/transfers/history" 
+              element={
+                <PrivateRoute accessKey="stock">
+                  <StockTransfers />
+                </PrivateRoute>
+              } 
+            />
+
 
             <Route 
               path="/pos" 
