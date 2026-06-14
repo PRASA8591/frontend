@@ -36,6 +36,47 @@ const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  const pageRef = useRef(null);
+  const cardRef = useRef(null);
+
+  const handlePageMouseMove = useCallback((e) => {
+    if (!pageRef.current) return;
+    const rect = pageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    pageRef.current.style.setProperty('--mouse-page-x', `${x}px`);
+    pageRef.current.style.setProperty('--mouse-page-y', `${y}px`);
+  }, []);
+
+  const handlePageMouseEnter = useCallback(() => {
+    if (!pageRef.current) return;
+    pageRef.current.style.setProperty('--mouse-page-opacity', '0.6');
+  }, []);
+
+  const handlePageMouseLeave = useCallback(() => {
+    if (!pageRef.current) return;
+    pageRef.current.style.setProperty('--mouse-page-opacity', '0');
+  }, []);
+
+  const handleCardMouseMove = useCallback((e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    cardRef.current.style.setProperty('--mouse-x', `${x}px`);
+    cardRef.current.style.setProperty('--mouse-y', `${y}px`);
+  }, []);
+
+  const handleCardMouseEnter = useCallback(() => {
+    if (!cardRef.current) return;
+    cardRef.current.style.setProperty('--mouse-opacity', '1');
+  }, []);
+
+  const handleCardMouseLeave = useCallback(() => {
+    if (!cardRef.current) return;
+    cardRef.current.style.setProperty('--mouse-opacity', '0');
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
@@ -61,13 +102,65 @@ const Login = () => {
   }, [login, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden px-4 py-8 font-sans">
+    <div 
+      ref={pageRef}
+      onMouseMove={handlePageMouseMove}
+      onMouseEnter={handlePageMouseEnter}
+      onMouseLeave={handlePageMouseLeave}
+      className="min-h-screen flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden px-4 py-8 font-sans"
+    >
       <BackgroundBlobs />
+      
+      {/* Page-level ambient spotlight */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 mix-blend-screen"
+        style={{
+          opacity: 'var(--mouse-page-opacity, 0)',
+          background: 'radial-gradient(800px circle at var(--mouse-page-x, 0px) var(--mouse-page-y, 0px), rgba(16, 185, 129, 0.08) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 100%)'
+        }}
+      />
       
       <div className="w-full max-w-4xl relative z-10 flex flex-col items-center gap-6">
         
-        {/* Main Split container card */}
-        <div className="w-full bg-[#080c16]/95 backdrop-blur-2xl rounded-3xl overflow-hidden border border-blue-500/25 ring-1 ring-emerald-500/15 shadow-[0_0_50px_rgba(59,130,246,0.15),0_0_50px_rgba(16,185,129,0.08)] flex flex-col md:flex-row">
+        {/* Main Card with Neon Spotlight Border */}
+        <div 
+          ref={cardRef}
+          onMouseMove={handleCardMouseMove}
+          onMouseEnter={handleCardMouseEnter}
+          onMouseLeave={handleCardMouseLeave}
+          className="w-full relative p-[1.5px] rounded-[24px] transition-all duration-300 group"
+          style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%)',
+            boxShadow: '0 0 40px rgba(59, 130, 246, 0.05), 0 0 40px rgba(16, 185, 129, 0.03)'
+          }}
+        >
+          {/* Border spotlight glow layer */}
+          <div 
+            className="absolute inset-0 rounded-[24px] pointer-events-none transition-opacity duration-300"
+            style={{
+              opacity: 'var(--mouse-opacity, 0)',
+              background: 'radial-gradient(350px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(16, 185, 129, 0.5) 0%, rgba(59, 130, 246, 0.5) 50%, transparent 100%)',
+            }}
+          />
+
+          {/* Ambient card back-glow */}
+          <div 
+            className="absolute -inset-10 rounded-[40px] pointer-events-none transition-opacity duration-300 filter blur-2xl opacity-0 group-hover:opacity-100"
+            style={{
+              background: 'radial-gradient(400px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 50%, transparent 100%)',
+            }}
+          />
+
+          {/* Main Split container card */}
+          <div className="w-full bg-[#080c16]/98 backdrop-blur-2xl rounded-[23px] overflow-hidden flex flex-col md:flex-row relative z-10">
+            {/* Inner soft spotlight overlay */}
+            <div 
+              className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+              style={{
+                opacity: 'var(--mouse-opacity, 0)',
+                background: 'radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(16, 185, 129, 0.04) 0%, rgba(59, 130, 246, 0.04) 50%, transparent 100%)',
+              }}
+            />
           
           {/* Left panel: Logo, Tagline, Brand features */}
           <div className="w-full md:w-[350px] bg-slate-950/40 p-10 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-900/60 flex-shrink-0">
@@ -257,6 +350,8 @@ const Login = () => {
           </div>
 
         </div>
+
+      </div>
 
         {/* Small Bottom Signature */}
         <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">
