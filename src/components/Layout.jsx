@@ -143,7 +143,7 @@ const Layout = ({ children }) => {
     { path: '/dashboard', name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, accessKey: 'dashboard' },
     { path: '/items', name: 'Items Management', icon: <Package className="w-5 h-5" />, accessKey: 'items' },
     { path: '/stock', name: 'Stock Management', icon: <TrendingUp className="w-5 h-5" />, accessKey: 'stock' },
-    { path: '/transfers', name: 'Stock Transfer', icon: <Truck className="w-5 h-5" />, accessKey: 'stock' },
+    { path: '/transfers', name: 'Stock Transfer', icon: <Truck className="w-5 h-5" />, accessKey: 'transfers' },
     { path: '/stock/direct', name: 'Direct Stock Add', icon: <PlusCircle className="w-5 h-5" />, accessKey: 'direct_stock' },
     { path: '/pos', name: 'POS Terminal', icon: <ShoppingCart className="w-5 h-5" />, accessKey: 'pos' },
     { path: '/price', name: 'Price Management', icon: <Tag className="w-5 h-5" />, accessKey: 'price' },

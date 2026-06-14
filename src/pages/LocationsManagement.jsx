@@ -27,6 +27,8 @@ const AVAILABLE_PAGES = [
   { key: 'dashboard', name: 'Dashboard' },
   { key: 'items', name: 'Items Management' },
   { key: 'stock', name: 'Stock Management' },
+  { key: 'transfers', name: 'Stock Transfers' },
+  { key: 'shifts', name: 'Cashier Shifts' },
   { key: 'direct_stock', name: 'Direct Stock Add' },
   { key: 'pos', name: 'POS Terminal' },
   { key: 'price', name: 'Price Management' },
@@ -64,7 +66,7 @@ const LocationsManagement = () => {
     type: 'Warehouse',
     manager: '',
     status: 'active',
-    allowedPages: ['dashboard', 'items', 'stock', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings'],
+    allowedPages: ['dashboard', 'items', 'stock', 'transfers', 'shifts', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings', 'locations'],
     isMain: false
   });
 
@@ -137,7 +139,7 @@ const LocationsManagement = () => {
       type: 'Warehouse',
       manager: '',
       status: 'active',
-      allowedPages: ['dashboard', 'items', 'stock', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings'],
+      allowedPages: ['dashboard', 'items', 'stock', 'transfers', 'shifts', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings', 'locations'],
       isMain: false
     });
     setIsModalOpen(true);
@@ -154,7 +156,7 @@ const LocationsManagement = () => {
       type: wh.type || 'Warehouse',
       manager: wh.manager || '',
       status: wh.status || 'active',
-      allowedPages: wh.allowedPages || ['dashboard', 'items', 'stock', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings'],
+      allowedPages: wh.allowedPages || ['dashboard', 'items', 'stock', 'transfers', 'shifts', 'direct_stock', 'pos', 'price', 'crm', 'supply', 'invoices', 'users', 'reports', 'settings', 'locations'],
       isMain: wh.isMain || false
     });
     setIsModalOpen(true);

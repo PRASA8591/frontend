@@ -41,7 +41,7 @@ const getFirstAllowedPage = (user) => {
     { path: '/dashboard', accessKey: 'dashboard' },
     { path: '/items', accessKey: 'items' },
     { path: '/stock', accessKey: 'stock' },
-    { path: '/transfers', accessKey: 'stock' },
+    { path: '/transfers', accessKey: 'transfers' },
     { path: '/stock/direct', accessKey: 'direct_stock' },
 
     { path: '/pos', accessKey: 'pos' },
@@ -222,7 +222,7 @@ function App() {
             <Route 
               path="/transfers" 
               element={
-                <PrivateRoute accessKey="stock">
+                <PrivateRoute accessKey="transfers">
                   <StockTransfers />
                 </PrivateRoute>
               } 
@@ -231,7 +231,7 @@ function App() {
             <Route 
               path="/transfers/request" 
               element={
-                <PrivateRoute accessKey="stock">
+                <PrivateRoute accessKey="transfers">
                   <StockTransfers />
                 </PrivateRoute>
               } 
@@ -240,7 +240,7 @@ function App() {
             <Route 
               path="/transfers/history" 
               element={
-                <PrivateRoute accessKey="stock">
+                <PrivateRoute accessKey="transfers">
                   <StockTransfers />
                 </PrivateRoute>
               } 

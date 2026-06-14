@@ -57,7 +57,20 @@ const Reports = () => {
   const { formatCurrency, settings } = useSettings();
 
   // Active Report Tab: 'sales' | 'stock' | 'invoices' | 'shifts' | 'price' | 'adjustments' | 'direct'
-  const [activeTab, setActiveTab] = useState('sales');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (!user) return 'sales';
+    if (user.role === 'admin') return 'sales';
+    const access = user.access || {};
+    if (access.pos || access.dashboard) return 'sales';
+    if (access.stock || access.items) return 'stock';
+    if (access.invoices) return 'invoices';
+    if (access.shifts) return 'shifts';
+    if (settings?.useCostPrice !== false && access.price) return 'price';
+    if (access.audit_logs || access.stock) return 'adjustments';
+    if (access.direct_stock) return 'direct';
+    if (access.audit_logs) return 'activity';
+    return 'sales'; // fallback
+  });
 
   // Unified Data State with safe fallbacks
   const [sales, setSales] = useState([]);
@@ -1045,31 +1058,39 @@ const Reports = () => {
 
       {/* Modern Multi-Tab Selection Strip */}
       <div className="flex border-b border-slate-200 overflow-x-auto space-x-3 sm:space-x-6 custom-scrollbar pb-1.5 scroll-smooth">
-        <button 
-          onClick={() => setActiveTab('sales')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'sales' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Sales Report
-        </button>
-        <button 
-          onClick={() => setActiveTab('stock')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'stock' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Stock & Expiry
-        </button>
-        <button 
-          onClick={() => setActiveTab('invoices')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'invoices' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Invoice Report
-        </button>
-        <button 
-          onClick={() => setActiveTab('shifts')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'shifts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Users & Shifts
-        </button>
-        {settings.useCostPrice !== false && (
+        {(user?.role === 'admin' || user?.access?.pos || user?.access?.dashboard) && (
+          <button 
+            onClick={() => setActiveTab('sales')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'sales' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Sales Report
+          </button>
+        )}
+        {(user?.role === 'admin' || user?.access?.stock || user?.access?.items) && (
+          <button 
+            onClick={() => setActiveTab('stock')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'stock' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Stock & Expiry
+          </button>
+        )}
+        {(user?.role === 'admin' || user?.access?.invoices) && (
+          <button 
+            onClick={() => setActiveTab('invoices')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'invoices' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Invoice Report
+          </button>
+        )}
+        {(user?.role === 'admin' || user?.access?.shifts) && (
+          <button 
+            onClick={() => setActiveTab('shifts')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'shifts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Users & Shifts
+          </button>
+        )}
+        {settings.useCostPrice !== false && (user?.role === 'admin' || user?.access?.price) && (
           <button 
             onClick={() => setActiveTab('price')} 
             className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'price' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
@@ -1077,18 +1098,22 @@ const Reports = () => {
             <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Price Audit
           </button>
         )}
-        <button 
-          onClick={() => setActiveTab('adjustments')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'adjustments' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Stock Audit Logs
-        </button>
-        <button 
-          onClick={() => setActiveTab('direct')} 
-          className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'direct' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Direct Stock
-        </button>
+        {(user?.role === 'admin' || user?.access?.audit_logs || user?.access?.stock) && (
+          <button 
+            onClick={() => setActiveTab('adjustments')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'adjustments' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Stock Audit Logs
+          </button>
+        )}
+        {(user?.role === 'admin' || user?.access?.direct_stock) && (
+          <button 
+            onClick={() => setActiveTab('direct')} 
+            className={`pb-3 text-xs sm:text-sm font-bold border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeTab === 'direct' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Direct Stock
+          </button>
+        )}
         {(user?.role === 'admin' || user?.access?.audit_logs) && (
           <>
             <button 

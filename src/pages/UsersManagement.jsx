@@ -72,7 +72,11 @@ const UsersManagement = () => {
     recent_bills: false,
     recent_bills_edit: false,
     audit_logs: false,
-    audit_logs_edit: false
+    audit_logs_edit: false,
+    transfers: true,
+    transfers_edit: true,
+    shifts: true,
+    shifts_edit: true
   };
 
   const [warehouses, setWarehouses] = useState([]);
@@ -194,6 +198,8 @@ const UsersManagement = () => {
     { key: 'direct_stock', label: 'Direct Stock Add Page', isSplit: true, editKey: 'direct_stock_edit', viewLabel: 'View Page', editLabel: 'Add Direct Stock' },
     { key: 'items', label: 'Items Catalog', isSplit: true, editKey: 'items_edit', viewLabel: 'View Catalog', editLabel: 'Add/Edit/Delete' },
     { key: 'stock', label: 'Stock Levels', isSplit: true, editKey: 'stock_edit', viewLabel: 'View Stock', editLabel: 'Adjust Stock' },
+    { key: 'transfers', label: 'Stock Transfers', isSplit: true, editKey: 'transfers_edit', viewLabel: 'View Transfers', editLabel: 'Create/Cancel/Approve' },
+    { key: 'shifts', label: 'Cashier Shifts', isSplit: true, editKey: 'shifts_edit', viewLabel: 'View Shift Ledger', editLabel: 'Open/Close Shifts' },
     { key: 'crm', label: 'CRM (Customers)', isSplit: true, editKey: 'crm_edit', viewLabel: 'View Customers', editLabel: 'Manage Customers' },
     { key: 'supply', label: 'Supply Chain', isSplit: true, editKey: 'supply_edit', viewLabel: 'View PO/GRN/Returns', editLabel: 'Create PO/GRN/Returns' },
     { key: 'invoices', label: 'Invoices', isSplit: true, editKey: 'invoices_edit', viewLabel: 'View Invoices', editLabel: 'Create Invoices' },
@@ -388,7 +394,30 @@ const UsersManagement = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                     <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Tick-Mark Permission Clearances</h4>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Mark access targets</span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allTrue = {};
+                          Object.keys(defaultAccess).forEach(k => { allTrue[k] = true; });
+                          setNewUserData({ ...newUserData, access: allTrue });
+                        }}
+                        className="px-2 py-0.5 text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                      >
+                        Grant All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allFalse = {};
+                          Object.keys(defaultAccess).forEach(k => { allFalse[k] = false; });
+                          setNewUserData({ ...newUserData, access: allFalse });
+                        }}
+                        className="px-2 py-0.5 text-[9px] font-black text-rose-600 bg-rose-50 border border-rose-200 rounded hover:bg-rose-100 transition-colors"
+                      >
+                        Revoke All
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -554,7 +583,34 @@ const UsersManagement = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                     <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider">Tick-Mark Permission Clearances</h4>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">{isEditReadOnly ? "View clearances" : "Modify clearances"}</span>
+                    {!isEditReadOnly ? (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allTrue = {};
+                            Object.keys(defaultAccess).forEach(k => { allTrue[k] = true; });
+                            setEditUserData({ ...editUserData, access: allTrue });
+                          }}
+                          className="px-2 py-0.5 text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          Grant All
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const allFalse = {};
+                            Object.keys(defaultAccess).forEach(k => { allFalse[k] = false; });
+                            setEditUserData({ ...editUserData, access: allFalse });
+                          }}
+                          className="px-2 py-0.5 text-[9px] font-black text-rose-600 bg-rose-50 border border-rose-200 rounded hover:bg-rose-100 transition-colors"
+                        >
+                          Revoke All
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 font-bold uppercase">View clearances</span>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

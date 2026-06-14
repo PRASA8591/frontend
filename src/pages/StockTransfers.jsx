@@ -31,6 +31,7 @@ const StockTransfers = () => {
   const { confirm } = useConfirm();
   const { settings, formatCurrency } = useSettings();
   const { user } = useAuth();
+  const readOnly = user?.role !== 'admin' && !user?.access?.transfers_edit;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -706,16 +707,18 @@ const StockTransfers = () => {
               />
             </div>
 
-            <button
-              onClick={() => {
-                setDestWH('');
-                setRemarks('');
-                setShowCreateModal(true);
-              }}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-95 transition-all w-full sm:w-auto justify-center"
-            >
-              <PlusCircle className="w-4 h-4" /> Create New Transfer
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => {
+                  setDestWH('');
+                  setRemarks('');
+                  setShowCreateModal(true);
+                }}
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-blue-600/20 active:scale-95 transition-all w-full sm:w-auto justify-center"
+              >
+                <PlusCircle className="w-4 h-4" /> Create New Transfer
+              </button>
+            )}
           </div>
 
           {/* Draft Manifests Section */}
@@ -762,18 +765,29 @@ const StockTransfers = () => {
                             </span>
                           </td>
                           <td className="px-8 py-4 text-right flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleOpenDraft(t)}
-                              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
-                            >
-                              <Edit className="w-3.5 h-3.5" /> Edit Draft
-                            </button>
-                            <button
-                              onClick={() => handleCancelTransfer(t._id, t.transferNo, t.status)}
-                              className="px-3 py-1.5 hover:bg-rose-50 text-rose-600 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border border-transparent hover:border-rose-100"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" /> Delete
-                            </button>
+                            {readOnly ? (
+                              <button
+                                onClick={() => handleViewDetails(t)}
+                                className="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 ml-auto active:scale-95 transition-all"
+                              >
+                                <FileText className="w-3.5 h-3.5" /> Manifest
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleOpenDraft(t)}
+                                  className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
+                                >
+                                  <Edit className="w-3.5 h-3.5" /> Edit Draft
+                                </button>
+                                <button
+                                  onClick={() => handleCancelTransfer(t._id, t.transferNo, t.status)}
+                                  className="px-3 py-1.5 hover:bg-rose-50 text-rose-600 rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 border border-transparent hover:border-rose-100"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" /> Delete
+                                </button>
+                              </>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -904,12 +918,21 @@ const StockTransfers = () => {
                           {new Date(t.approvedDate || t.initiatedDate).toLocaleDateString()}
                         </td>
                         <td className="px-8 py-5 text-right">
-                          <button
-                            onClick={() => handleViewDetails(t)}
-                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/10 active:scale-95 transition-all ml-auto"
-                          >
-                            <PlusCircle className="w-3.5 h-3.5" /> Details & Add Stock
-                          </button>
+                          {readOnly ? (
+                            <button
+                              onClick={() => handleViewDetails(t)}
+                              className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 active:scale-95 transition-all ml-auto"
+                            >
+                              <FileText className="w-3.5 h-3.5" /> Details
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleViewDetails(t)}
+                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/10 active:scale-95 transition-all ml-auto"
+                            >
+                              <PlusCircle className="w-3.5 h-3.5" /> Details & Add Stock
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -1195,7 +1218,7 @@ const StockTransfers = () => {
             </div>
 
             {/* Modal Footer Actions - Hide on print */}
-            {selectedTransfer.status === 'In Transit' && String(selectedTransfer.destinationWarehouse?._id || selectedTransfer.destinationWarehouse) === String(currentWhId) && (
+            {selectedTransfer.status === 'In Transit' && !readOnly && String(selectedTransfer.destinationWarehouse?._id || selectedTransfer.destinationWarehouse) === String(currentWhId) && (
               <div className="bg-slate-50 px-8 py-5 border-t border-slate-100 flex justify-end gap-3 no-print">
                 <button
                   onClick={() => handleReceiveTransfer(selectedTransfer._id, selectedTransfer.transferNo)}
