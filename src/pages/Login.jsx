@@ -1,70 +1,38 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, User, Loader2, ShieldCheck, Cpu, Database, Server } from 'lucide-react';
+import { 
+  Lock, 
+  User, 
+  Loader2, 
+  ShieldCheck, 
+  Cpu, 
+  Database, 
+  Server, 
+  Eye, 
+  EyeOff, 
+  Shield, 
+  TrendingUp, 
+  Cloud, 
+  AlertCircle 
+} from 'lucide-react';
 import logo from '../assets/logo.png';
 
-// Memoized Background Blobs to avoid re-renders during input typing
+// Background Accent Blobs
 const BackgroundBlobs = React.memo(() => (
   <>
-    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+    <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[150px] animate-pulse"></div>
+    <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-emerald-600/10 rounded-full blur-[150px] animate-pulse delay-1000"></div>
   </>
 ));
 BackgroundBlobs.displayName = 'BackgroundBlobs';
-
-// Memoized Header logo and brand to prevent image decoding/rendering cycles on typing
-const Header = React.memo(({ logo }) => (
-  <div className="p-10 text-center relative">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
-    
-    <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-900 text-white shadow-xl mb-6 transform hover:rotate-6 transition-transform">
-       <img src={logo} className="w-12 h-12 object-contain" alt="Logo" loading="eager" />
-    </div>
-    
-    <h1 className="text-2xl font-black text-slate-900 tracking-tight">PrasaTek Inventory System</h1>
-    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] mt-2">Powered by PrasaTek System Solutions</p>
-  </div>
-));
-Header.displayName = 'Header';
-
-// Memoized Branding Footer
-const BrandingFooter = React.memo(() => (
-  <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-     <div className="flex gap-2">
-        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-        <div className="w-2 h-2 rounded-full bg-slate-200"></div>
-     </div>
-     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Core Secure v4.2.1</p>
-  </div>
-));
-BrandingFooter.displayName = 'BrandingFooter';
-
-// Memoized System Badges
-const SystemBadges = React.memo(() => (
-  <div className="mt-8 flex justify-center items-center gap-6 opacity-40 grayscale group hover:grayscale-0 hover:opacity-100 transition-all">
-     <div className="flex items-center gap-2 text-white">
-        <Database className="w-4 h-4" />
-        <span className="text-[10px] font-bold uppercase tracking-widest">Encrypted</span>
-     </div>
-     <div className="flex items-center gap-2 text-white">
-        <Server className="w-4 h-4" />
-        <span className="text-[10px] font-bold uppercase tracking-widest">System Login</span>
-     </div>
-     <div className="flex items-center gap-2 text-white">
-        <Cpu className="w-4 h-4" />
-        <span className="text-[10px] font-bold uppercase tracking-widest">Optimized</span>
-     </div>
-  </div>
-));
-SystemBadges.displayName = 'SystemBadges';
 
 const Login = () => {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -74,7 +42,6 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Memoized submit handler using refs to avoid any re-renders while typing
   const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
@@ -94,85 +61,208 @@ const Login = () => {
   }, [login, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 relative overflow-hidden px-4 font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 relative overflow-hidden px-4 py-8 font-sans">
       <BackgroundBlobs />
       
-      <div className="w-full max-w-[440px] relative z-10">
-        <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-900/40 overflow-hidden border border-white/20">
+      <div className="w-full max-w-4xl relative z-10 flex flex-col items-center gap-6">
+        
+        {/* Main Split container card */}
+        <div className="w-full bg-[#080c16]/95 backdrop-blur-2xl rounded-3xl overflow-hidden border border-blue-500/25 ring-1 ring-emerald-500/15 shadow-[0_0_50px_rgba(59,130,246,0.15),0_0_50px_rgba(16,185,129,0.08)] flex flex-col md:flex-row">
           
-          <Header logo={logo} />
-
-          <div className="px-10 pb-10">
-            {error && (
-              <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-2xl mb-8 text-xs font-bold flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                {error}
+          {/* Left panel: Logo, Tagline, Brand features */}
+          <div className="w-full md:w-[350px] bg-slate-950/40 p-10 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-900/60 flex-shrink-0">
+            
+            {/* Logo area */}
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-slate-950 border border-slate-900 text-white shadow-xl mb-5 transform hover:scale-105 transition-all">
+                <img src={logo} className="w-14 h-14 object-contain" alt="Logo" loading="eager" />
               </div>
-            )}
+              
+              <h2 className="text-2xl font-black text-white tracking-tight">PrasaTek</h2>
+              <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.25em] mt-1.5">Inventory System</p>
+              
+              <div className="h-[2px] w-16 mx-auto my-6 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full"></div>
+              
+              <p className="text-xs text-slate-400 font-semibold leading-relaxed px-2">
+                Advanced Inventory Management<br />
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-black block mt-1">Made Simple & Secure</span>
+              </p>
+            </div>
 
-            <form onSubmit={onSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identity Access</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <input
-                    type="text"
-                    name="username"
-                    ref={usernameRef}
-                    autoComplete="username"
-                    className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all placeholder:text-slate-300"
-                    placeholder="Operator Username"
-                    required
-                  />
+            {/* Feature lists */}
+            <div className="space-y-6 my-10 md:my-0 text-left">
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-200">Enterprise Security</h4>
+                  <p className="text-[10px] text-slate-500 font-bold mt-0.5 leading-snug">End-to-end encrypted data protection</p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Secure Protocol</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                    <Lock className="h-4 w-4" />
-                  </div>
-                  <input
-                    type="password"
-                    name="password"
-                    ref={passwordRef}
-                    autoComplete="current-password"
-                    className="block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all placeholder:text-slate-300"
-                    placeholder="Enter Access Key"
-                    required
-                  />
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-200">Real-time Analytics</h4>
+                  <p className="text-[10px] text-slate-500 font-bold mt-0.5 leading-snug">Live inventory tracking and insights</p>
                 </div>
               </div>
 
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-slate-900 hover:bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 active:scale-[0.98] group cursor-pointer disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span className="uppercase tracking-widest text-[11px]">Validating Access...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-5 h-5 group-hover:animate-bounce" />
-                      <span className="uppercase tracking-[0.2em] text-[11px]">Authorize Session</span>
-                    </>
-                  )}
-                </button>
+              <div className="flex items-start gap-4">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0">
+                  <Cloud className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-200">Cloud Optimized</h4>
+                  <p className="text-[10px] text-slate-500 font-bold mt-0.5 leading-snug">High performance cloud infrastructure</p>
+                </div>
               </div>
-            </form>
+            </div>
+
+            {/* Pulse Indicator */}
+            <div className="flex items-center gap-3 mt-6 md:mt-0 justify-center md:justify-start">
+              <div className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </div>
+              <div className="text-left">
+                <span className="block text-[9px] font-black text-emerald-400 uppercase tracking-widest">System Online</span>
+                <span className="block text-[8px] font-bold text-slate-500 uppercase mt-0.5">All systems operational</span>
+              </div>
+            </div>
+
           </div>
 
-          <BrandingFooter />
+          {/* Right panel: Login credentials form */}
+          <div className="flex-1 p-8 md:p-12 flex flex-col justify-center text-left">
+            <div>
+              <h1 className="text-2xl font-black text-white tracking-tight">Welcome Back</h1>
+              <p className="text-xs text-slate-400 font-medium mt-1">Sign in to access your inventory dashboard</p>
+              
+              <div className="h-[2px] w-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full mt-4"></div>
+            </div>
+
+            <div className="mt-8">
+              {error && (
+                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 px-4 py-3 rounded-2xl mb-6 text-xs font-bold flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={onSubmit} className="space-y-6">
+                
+                {/* Username */}
+                <div className="space-y-2">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Operator Username</label>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
+                    <input
+                      type="text"
+                      name="username"
+                      ref={usernameRef}
+                      autoComplete="username"
+                      className="block w-full pl-12 pr-4 py-3.5 bg-slate-950/40 border border-slate-800 rounded-xl text-xs font-bold text-slate-200 placeholder:text-slate-650 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                      placeholder="Enter your username"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Password / Access Key */}
+                <div className="space-y-2">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Secure Access Key</label>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      ref={passwordRef}
+                      autoComplete="current-password"
+                      className="block w-full pl-12 pr-12 py-3.5 bg-slate-950/40 border border-slate-800 rounded-xl text-xs font-bold text-slate-200 placeholder:text-slate-650 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                      placeholder="Enter your access key"
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-350 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-400 hover:to-blue-500 text-white font-black py-4 rounded-xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.2em] cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                        <span>Validating Access...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4.5 h-4.5" />
+                        <span>Authorize Session</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {/* Secure By Design separator */}
+              <div className="relative flex py-6 items-center">
+                <div className="flex-grow border-t border-slate-900/60"></div>
+                <span className="flex-shrink mx-4 text-[8px] font-black text-slate-500 uppercase tracking-[0.25em]">Secure By Design</span>
+                <div className="flex-grow border-t border-slate-900/60"></div>
+              </div>
+
+              {/* Footer Metrics Row */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 bg-slate-950/30 border border-slate-900/30 rounded-xl flex items-center gap-2">
+                  <Database className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <div className="text-[8px] leading-tight text-left">
+                    <span className="block font-black text-slate-300 uppercase">Encrypted</span>
+                    <span className="block font-bold text-slate-500 uppercase mt-0.5">256-bit SSL</span>
+                  </div>
+                </div>
+                
+                <div className="p-3 bg-slate-950/30 border border-slate-900/30 rounded-xl flex items-center gap-2">
+                  <Server className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                  <div className="text-[8px] leading-tight text-left">
+                    <span className="block font-black text-slate-300 uppercase">System Login</span>
+                    <span className="block font-bold text-slate-500 uppercase mt-0.5">Secure Auth</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-slate-950/30 border border-slate-900/30 rounded-xl flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                  <div className="text-[8px] leading-tight text-left">
+                    <span className="block font-black text-slate-300 uppercase">Optimized</span>
+                    <span className="block font-bold text-slate-500 uppercase mt-0.5">High Perf</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
-        
-        <SystemBadges />
+
+        {/* Small Bottom Signature */}
+        <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em]">
+          Core Secure v4.2.1 • PrasaTek System Solutions
+        </p>
+
       </div>
     </div>
   );

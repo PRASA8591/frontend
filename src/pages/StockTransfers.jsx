@@ -35,6 +35,11 @@ const StockTransfers = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Filter warehouses based on user allowed locations (access list)
+  const filteredWarehouses = user?.role === 'admin'
+    ? warehouses
+    : warehouses.filter(w => user?.allowedWarehouses?.some(aw => String(aw._id || aw) === String(w._id)));
+
   // Determine active tab based on route
   const getActiveTabFromPath = () => {
     if (location.pathname === '/transfers/request') return 'request';
@@ -967,7 +972,7 @@ const StockTransfers = () => {
                 className="w-full sm:w-48 p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
               >
                 <option value="">Source Warehouse (All)</option>
-                {warehouses.map(w => (
+                {filteredWarehouses.map(w => (
                   <option key={w._id} value={w._id}>{w.name}</option>
                 ))}
               </select>
@@ -977,7 +982,7 @@ const StockTransfers = () => {
                 className="w-full sm:w-48 p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
               >
                 <option value="">Destination Warehouse (All)</option>
-                {warehouses.map(w => (
+                {filteredWarehouses.map(w => (
                   <option key={w._id} value={w._id}>{w.name}</option>
                 ))}
               </select>
@@ -1268,7 +1273,7 @@ const StockTransfers = () => {
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="">Select target warehouse...</option>
-                    {warehouses.filter(w => w.status === 'active' && String(w._id) !== String(sourceWH)).map(w => (
+                    {filteredWarehouses.filter(w => w.status === 'active' && String(w._id) !== String(sourceWH)).map(w => (
                       <option key={w._id} value={w._id}>{w.name} ({w.code})</option>
                     ))}
                   </select>
@@ -1351,7 +1356,7 @@ const StockTransfers = () => {
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 cursor-pointer"
                   >
                     <option value="">Select target warehouse...</option>
-                    {warehouses.filter(w => w.status === 'active' && String(w._id) !== String(editingDraft.sourceWarehouse?._id)).map(w => (
+                    {filteredWarehouses.filter(w => w.status === 'active' && String(w._id) !== String(editingDraft.sourceWarehouse?._id)).map(w => (
                       <option key={w._id} value={w._id}>{w.name} ({w.code})</option>
                     ))}
                   </select>
