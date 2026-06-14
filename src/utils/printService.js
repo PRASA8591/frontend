@@ -349,5 +349,169 @@ export const printService = {
       </html>
     `;
     executeIframePrint(html);
+  },
+
+  /**
+   * formal A4 Stock Transfer Manifest print layout
+   */
+  stockTransfer: (transfer, settings = { currencySymbol: 'Rs.', companyName: 'PRASATEK', address: '', mobile: '', email: '' }, user = {}) => {
+    const totalQty = transfer.items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalVal = transfer.items.reduce((sum, item) => sum + ((item.costPrice || 0) * item.quantity), 0);
+    const invoiceLogo = settings.shopLogo || '';
+    
+    const html = `
+      <html>
+      <head>
+        <style>
+          ${baseStyles}
+          body { padding: 15mm; font-size: 11px; }
+          .header-table td { border: 0; padding: 0; vertical-align: top; }
+          .logo-area { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; color: #2563eb; }
+          .doc-title { font-size: 18px; font-weight: 800; text-align: right; text-transform: uppercase; color: #0f172a; }
+          .card { background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 12px; border-radius: 6px; }
+          .items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          .items-table th { border: 1px solid #94a3b8; padding: 8px; background-color: #f8fafc !important; color: #475569; font-weight: bold; text-transform: uppercase; text-align: left; font-size: 9px; }
+          .items-table td { border: 1px solid #cbd5e1; padding: 8px; font-size: 11px; }
+          .items-table tfoot td { border: 1px solid #94a3b8; font-weight: bold; font-size: 11px; }
+        </style>
+      </head>
+      <body>
+        <!-- Top Shop Details & Logo Area -->
+        <table class="header-table mb-4" style="width: 100%;">
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                ${invoiceLogo ? `
+                  <img src="${invoiceLogo}" style="max-height: 50px; max-width: 180px; object-fit: contain;" />
+                ` : ''}
+                <div class="logo-area">${settings.companyName?.split(' ')[0] || 'PRASATEK'}<span style="color:#0f172a">${settings.companyName?.split(' ').slice(1).join(' ') || 'CORE'}</span></div>
+              </div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 4px;">
+                ${settings.address || ''}<br/>
+                ${settings.mobile ? `Tel: ${settings.mobile}` : ''} ${settings.email ? ` | Email: ${settings.email}` : ''}
+              </div>
+            </td>
+            <td class="text-right">
+              <div class="doc-title">Stock Transfer Manifest</div>
+              <div class="font-mono font-bold mt-4" style="font-size:12px;">Manifest #: ${transfer.transferNo}</div>
+              <div class="text-slate-500 font-medium mt-1">Status: ${transfer.status.toUpperCase()}</div>
+              <div class="text-slate-500 font-medium mt-1">Date: ${new Date(transfer.initiatedDate || Date.now()).toLocaleDateString()}</div>
+            </td>
+          </tr>
+        </table>
+        
+        <hr style="border:0; border-top: 1px solid #cbd5e1; margin: 15px 0;"/>
+        
+        <!-- Locations Details Route -->
+        <table class="header-table mb-4" style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 50%; padding-right: 10px;">
+              <div class="card">
+                <div class="font-black uppercase tracking-wide text-slate-400 text-[9px]" style="margin-bottom: 4px;">Dispatch Origin (Source)</div>
+                <div class="font-bold text-slate-800">${transfer.sourceWarehouse?.name || '--'}</div>
+                <div class="text-xs text-slate-500">Code: ${transfer.sourceWarehouse?.code || '--'}</div>
+                ${transfer.sourceWarehouse?.address ? `<div class="text-xs text-slate-500 mt-1">${transfer.sourceWarehouse.address}</div>` : ''}
+              </div>
+            </td>
+            <td style="width: 50%; padding-left: 10px;">
+              <div class="card">
+                <div class="font-black uppercase tracking-wide text-slate-400 text-[9px]" style="margin-bottom: 4px;">Receipt Destination (Target)</div>
+                <div class="font-bold text-slate-800">${transfer.destinationWarehouse?.name || '--'}</div>
+                <div class="text-xs text-slate-500">Code: ${transfer.destinationWarehouse?.code || '--'}</div>
+                ${transfer.destinationWarehouse?.address ? `<div class="text-xs text-slate-500 mt-1">${transfer.destinationWarehouse.address}</div>` : ''}
+              </div>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Metadata log -->
+        <table class="header-table" style="width: 100%; margin-bottom: 20px; font-size: 10px; color: #475569;">
+          <tr>
+            <td style="width: 25%;">
+              <span style="color:#94a3b8; text-transform: uppercase; font-size: 8px; font-weight: bold;">Initiated By:</span><br/>
+              <span style="font-weight: bold; color: #1e293b;">${transfer.initiatedBy?.username || 'System'}</span>
+            </td>
+            <td style="width: 25%;">
+              <span style="color:#94a3b8; text-transform: uppercase; font-size: 8px; font-weight: bold;">Approved By:</span><br/>
+              <span style="font-weight: bold; color: #1e293b;">${transfer.approvedBy?.username || 'N/A'}</span>
+            </td>
+            <td style="width: 25%;">
+              <span style="color:#94a3b8; text-transform: uppercase; font-size: 8px; font-weight: bold;">Received By:</span><br/>
+              <span style="font-weight: bold; color: #1e293b;">${transfer.receivedBy?.username || 'N/A'}</span>
+            </td>
+            <td style="width: 25%; text-align: right;">
+              <span style="color:#94a3b8; text-transform: uppercase; font-size: 8px; font-weight: bold;">Transfer Date:</span><br/>
+              <span style="font-weight: bold; color: #1e293b;">${new Date(transfer.initiatedDate).toLocaleDateString()}</span>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Items Table -->
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width: 5%; text-align: center;">No</th>
+              <th style="width: 45%;">Item Description / SKU</th>
+              <th style="width: 20%; text-align: center;">Batch Number</th>
+              <th style="width: 10%; text-align: center;">Qty</th>
+              <th style="width: 10%; text-align: right;">Unit Cost</th>
+              <th style="width: 10%; text-align: right;">Total Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${transfer.items.map((item, idx) => `
+              <tr>
+                <td style="text-align: center; font-family: monospace;">${idx + 1}</td>
+                <td>
+                  <div style="font-weight: bold; color: #0f172a;">${item.name}</div>
+                  <div style="font-size: 9px; color: #64748b; font-family: monospace; margin-top: 2px;">SKU: ${item.sku}</div>
+                </td>
+                <td style="text-align: center; font-family: monospace;">${item.batchNumber}</td>
+                <td style="text-align: center; font-weight: bold; font-family: monospace;">${item.quantity}</td>
+                <td style="text-align: right; font-family: monospace;">${parseFloat(item.costPrice || 0).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold; font-family: monospace;">${parseFloat((item.costPrice || 0) * item.quantity).toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background-color: #f8fafc; font-weight: bold;">
+              <td colspan="3" style="text-align: right; padding: 10px; text-transform: uppercase;">Total Units / Value</td>
+              <td style="text-align: center; padding: 10px; font-family: monospace;">${totalQty}</td>
+              <td></td>
+              <td style="text-align: right; padding: 10px; font-family: monospace;">${settings.currencySymbol || 'Rs.'} ${parseFloat(totalVal).toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>
+        
+        <!-- Remarks -->
+        ${transfer.remarks ? `
+          <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #f1f5f9; padding: 10px; border-radius: 6px;">
+            <div style="font-weight: bold; color: #64748b; font-size: 8px; text-transform: uppercase; margin-bottom: 4px;">Transfer Remarks</div>
+            <div style="color: #334155; font-style: italic;">${transfer.remarks}</div>
+          </div>
+        ` : ''}
+        
+        <!-- Signatures Panel -->
+        <table class="header-table" style="width: 100%; margin-top: 50px; border:0;">
+          <tr>
+            <td style="text-align: center; padding: 10px; width: 50%;">
+              <div style="border-bottom: 1px dashed #cbd5e1; height: 35px; width: 60%; margin: 0 auto;"></div>
+              <div style="margin-top: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;">Authorized Dispatcher</div>
+            </td>
+            <td style="text-align: center; padding: 10px; width: 50%;">
+              <div style="border-bottom: 1px dashed #cbd5e1; height: 35px; width: 60%; margin: 0 auto;"></div>
+              <div style="margin-top: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;">Receiving Operator Sign-Off</div>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Footer -->
+        <div class="text-center text-xs text-slate-400 font-mono mt-4" style="position: fixed; bottom: 10mm; left: 0; width: 100%; font-size: 9px; text-align: center;">
+          Printed Date: ${new Date().toLocaleString()} | Printed By: ${user.username || 'System'} • SECURE OPERATIONS CENTER
+        </div>
+      </body>
+      </html>
+    `;
+    executeIframePrint(html);
   }
 };

@@ -5,6 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
+import { printService } from '../utils/printService';
 import { 
   Truck, 
   PlusCircle, 
@@ -35,11 +36,6 @@ const StockTransfers = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Filter warehouses based on user allowed locations (access list)
-  const filteredWarehouses = user?.role === 'admin'
-    ? warehouses
-    : warehouses.filter(w => user?.allowedWarehouses?.some(aw => String(aw._id || aw) === String(w._id)));
-
   // Determine active tab based on route
   const getActiveTabFromPath = () => {
     if (location.pathname === '/transfers/request') return 'request';
@@ -59,6 +55,11 @@ const StockTransfers = () => {
   const [transfers, setTransfers] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
+
+  // Filter warehouses based on user allowed locations (access list)
+  const filteredWarehouses = user?.role === 'admin'
+    ? warehouses
+    : warehouses.filter(w => user?.allowedWarehouses?.some(aw => String(aw._id || aw) === String(w._id)));
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState(null);
@@ -556,9 +557,9 @@ const StockTransfers = () => {
     setShowDetailsModal(true);
   };
 
-  // Trigger Print of Manifest
+  // Trigger Print of Manifest using centralized printService
   const handlePrintManifest = () => {
-    window.print();
+    printService.stockTransfer(selectedTransfer, settings, user);
   };
 
   // Resolve user session warehouse context

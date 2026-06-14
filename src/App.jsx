@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
@@ -6,24 +6,23 @@ import { ToastProvider } from './context/ToastContext';
 import { ConfirmProvider } from './context/ConfirmContext';
 import { ShieldAlert } from 'lucide-react';
 
-// Pages
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import ItemsManagement from './pages/ItemsManagement';
-import StockManagement from './pages/StockManagement';
-import StockTransfers from './pages/StockTransfers';
-
-import POS from './pages/POS';
-import PriceManagement from './pages/PriceManagement';
-import UsersManagement from './pages/UsersManagement';
-import Reports from './pages/Reports';
-import SystemSettings from './pages/SystemSettings';
-import CRM from './pages/CRM';
-import SupplyChain from './pages/SupplyChain';
-import Invoices from './pages/Invoices';
-import DirectStockAdd from './pages/DirectStockAdd';
-import Activation from './pages/Activation';
-import LocationsManagement from './pages/LocationsManagement';
+// Pages - Lazy Loaded for Enterprise-Level Speed Optimization
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ItemsManagement = lazy(() => import('./pages/ItemsManagement'));
+const StockManagement = lazy(() => import('./pages/StockManagement'));
+const StockTransfers = lazy(() => import('./pages/StockTransfers'));
+const POS = lazy(() => import('./pages/POS'));
+const PriceManagement = lazy(() => import('./pages/PriceManagement'));
+const UsersManagement = lazy(() => import('./pages/UsersManagement'));
+const Reports = lazy(() => import('./pages/Reports'));
+const SystemSettings = lazy(() => import('./pages/SystemSettings'));
+const CRM = lazy(() => import('./pages/CRM'));
+const SupplyChain = lazy(() => import('./pages/SupplyChain'));
+const Invoices = lazy(() => import('./pages/Invoices'));
+const DirectStockAdd = lazy(() => import('./pages/DirectStockAdd'));
+const Activation = lazy(() => import('./pages/Activation'));
+const LocationsManagement = lazy(() => import('./pages/LocationsManagement'));
 
 // Core CSS & Layout wrapper
 import './index.css';
@@ -137,7 +136,13 @@ function App() {
         <ConfirmProvider>
           <SettingsProvider>
             <Router>
-              <Routes>
+              <Suspense fallback={
+                <div className="min-h-screen flex flex-col justify-center items-center bg-slate-50">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-blue-600"></div>
+                  <p className="mt-4 text-sm font-semibold text-slate-500 tracking-wide animate-pulse">Loading system modules...</p>
+                </div>
+              }>
+                <Routes>
             {/* Guest only Routes */}
             <Route path="/login" element={<Login />} />
             
@@ -359,7 +364,8 @@ function App() {
 
             {/* Wildcard Fallback Re-route */}
             <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                </Routes>
+              </Suspense>
             </Router>
           </SettingsProvider>
         </ConfirmProvider>

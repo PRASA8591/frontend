@@ -192,7 +192,7 @@ const CRM = () => {
       setIsModalOpen(false);
       fetchCustomers();
     } catch (err) {
-      toast.error('Transaction failed.');
+      toast.error(err.response?.data?.message || 'Transaction failed.');
     }
   };
 
